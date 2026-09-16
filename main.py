@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -154,4 +154,4 @@ st.text_area(
     label_visibility="collapsed",
     key="interpretation_2",
 )
-```
+
