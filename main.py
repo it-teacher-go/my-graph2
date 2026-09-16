@@ -237,7 +237,7 @@ st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세
 
 # ── 그래프 5. 장르별 총 관객 (박스플롯) ──
 st.header("5. 장르별 총 관객 (박스플롯)")
-big = df["장르"].value_counts()
+big = df["genre"].value_counts()
 big = big[big >= 10].index
 fig5 = px.box(df[df["genre"].isin(big)], x="genre", y="total_audi", points="outliers",
               hover_name="movieNm")
