@@ -133,3 +133,10 @@ st.text_area(
     label_visibility="collapsed"
 )
 
+
+# ── 그래프 2. 장르 안의 영화 (트리맵) ──
+st.header("2. 장르 안의 영화 (트리맵)")
+fig2 = px.treemap(df, path=["장르", "movieNm"], values="total_audi",
+                  hover_data=["total_audi"])
+st.plotly_chart(fig2, width="stretch")
+st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
