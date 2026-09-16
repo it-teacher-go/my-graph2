@@ -229,7 +229,7 @@ st.caption(
 
 # ── 그래프 4. 스크린 수와 총 관객 (산점도) ──
 st.header("4. 개봉일 스크린 수와 총 관객 (산점도)")
-fig4 = px.scatter(df, x="first_scrn", y="total_audi", color="장르",
+fig4 = px.scatter(df, x="first_scrn", y="total_audi", color="genre",
                   hover_name="movieNm")
 st.plotly_chart(fig4, width="stretch")
 st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
