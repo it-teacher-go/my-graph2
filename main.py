@@ -1,4 +1,4 @@
-
+```python
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -37,9 +37,8 @@ def load_data():
     # ----------------------------------------------
     # 장르 전처리
     # ----------------------------------------------
-    # genre에 여러 장르가 들어 있는 경우
-    # "|" 또는 "/"를 구분자로 사용하고
-    # 가장 앞에 있는 첫 번째 장르만 사용한다.
+    # "|" 또는 "/"가 여러 장르의 구분자로 사용된 경우
+    # 첫 번째 장르만 사용한다.
     #
     # 예:
     # "공포(호러)|멜로/로맨스" → "공포(호러)"
@@ -56,10 +55,20 @@ def load_data():
         .str.strip()
     )
 
+    # 빈 장르는 기타로 처리
+    df.loc[df["genre"] == "", "genre"] = "기타"
+
+    # 총 관객 수를 숫자로 변환
+    df["total_audi"] = pd.to_numeric(
+        df["total_audi"],
+        errors="coerce"
+    ).fillna(0)
+
     return df
 
 
 df = load_data()
+
 
 # --------------------------------------------------
 # 데이터 확인
@@ -69,16 +78,16 @@ with st.expander("데이터 보기"):
 
 st.divider()
 
+
 # ==================================================
-# ① 장르별 영화 편수
+# 그래프 1. 장르별 영화 편수
 # ==================================================
-st.subheader("① 장르별 영화 편수")
+st.header("1. 장르별 영화 편수")
 
 st.caption(
     "※ 여러 장르가 | 또는 /로 표시된 영화는 첫 번째 장르만 사용합니다."
 )
 
-# 장르별 영화 편수 계산
 genre_count = (
     df["genre"]
     .value_counts()
@@ -86,17 +95,18 @@ genre_count = (
     .reset_index(name="편수")
 )
 
+
 # --------------------------------------------------
 # 도넛 그래프
 # --------------------------------------------------
-fig = px.pie(
+fig1 = px.pie(
     genre_count,
     names="장르",
     values="편수",
     hole=0.5
 )
 
-fig.update_traces(
+fig1.update_traces(
     textinfo="label",
     hovertemplate=(
         "<b>%{label}</b><br>"
@@ -105,7 +115,7 @@ fig.update_traces(
     )
 )
 
-fig.update_layout(
+fig1.update_layout(
     height=520,
     margin=dict(
         t=30,
@@ -117,38 +127,103 @@ fig.update_layout(
 )
 
 st.plotly_chart(
-    fig,
+    fig1,
     use_container_width=True
 )
 
-# --------------------------------------------------
-# 학생 해석 공간
-# --------------------------------------------------
-st.markdown("#### ✏️ 이 그래프로 알 수 있는 것")
-
-st.text_area(
-    "학생 해석",
-    placeholder="그래프를 보고 알 수 있는 점을 한 문장으로 써 보세요.",
-    height=100,
-    label_visibility="collapsed"
+st.caption(
+    "이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)"
 )
 
 
-# ── 그래프 2. 장르 안의 영화 (트리맵) ──
+st.divider()
+
+
+# ==================================================
+# 그래프 2. 장르 안의 영화 (트리맵)
+# ==================================================
 st.header("2. 장르 안의 영화 (트리맵)")
-fig2 = px.treemap(df, path=["장르", "movieNm"], values="total_audi",
-                  hover_data=["total_audi"])
-st.plotly_chart(fig2, width="stretch")
-st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
+
+st.caption(
+    "※ 칸의 크기는 총 관객 수를 나타냅니다. "
+    "마우스를 올리면 영화명과 총 관객 수를 확인할 수 있습니다."
+)
+
+fig2 = px.treemap(
+    df,
+    path=["genre", "movieNm"],
+    values="total_audi"
+)
+
+fig2.update_traces(
+    hovertemplate=(
+        "<b>%{label}</b><br>"
+        "총 관객: %{value:,.0f}명"
+        "<extra></extra>"
+    ),
+    textinfo="label"
+)
+
+fig2.update_layout(
+    height=650,
+    margin=dict(
+        t=30,
+        b=20,
+        l=20,
+        r=20
+    )
+)
+
+st.plotly_chart(
+    fig2,
+    use_container_width=True
+)
+
+st.caption(
+    "이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)"
+)
 
 
+st.divider()
 
-# ── 그래프 3. 총 관객의 분포 (히스토그램) ──
+
+# ==================================================
+# 그래프 3. 총 관객의 분포 (히스토그램)
+# ==================================================
 st.header("3. 총 관객의 분포 (히스토그램)")
-fig3 = px.histogram(df, x="total_audi", nbins=40)
-st.plotly_chart(fig3, width="stretch")
-under_1m = (df["total_audi"] < 1_000_000).sum()
-best = df.loc[df["total_audi"].idxmax()]
-st.write(f"216편 가운데 {under_1m}편이 100만 명 미만입니다. "
-         f"가장 많이 본 영화는 {best['movieNm']}({best['total_audi']:,}명)입니다.")
-st.caption("이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)")
+
+fig3 = px.histogram(
+    df,
+    x="total_audi",
+    nbins=40
+)
+
+fig3.update_layout(
+    height=500,
+    xaxis_title="총 관객 수",
+    yaxis_title="영화 편수"
+)
+
+st.plotly_chart(
+    fig3,
+    use_container_width=True
+)
+
+under_1m = (
+    df["total_audi"] < 1_000_000
+).sum()
+
+best = df.loc[
+    df["total_audi"].idxmax()
+]
+
+st.write(
+    f"216편 가운데 {under_1m}편이 100만 명 미만입니다. "
+    f"가장 많이 본 영화는 "
+    f"{best['movieNm']}({best['total_audi']:,}명)입니다."
+)
+
+st.caption(
+    "이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)"
+)
+```
