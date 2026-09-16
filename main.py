@@ -1,4 +1,4 @@
-```python
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -226,4 +226,4 @@ st.write(
 st.caption(
     "이 그래프로 알 수 있는 것: (한 문장으로 적어 보세요)"
 )
-```
+
